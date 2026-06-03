@@ -40,15 +40,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        title: const Text('Home Page'),
-        actions: [
-          IconButton(
-            onPressed: logout,
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -89,36 +80,32 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            username.isEmpty ? 'User' : username,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                username.isEmpty ? 'User' : username,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 24,
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    const Icon(
-                      Icons.verified,
-                      color: Colors.green,
-                      size: 24,
+                    IconButton(
+                      onPressed: logout,
+                      icon: const Icon(Icons.logout),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Welcome, ${username.isEmpty ? 'Guest' : username}!',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Ini adalah halaman utama aplikasi kamu. Tekan ikon logout di atas untuk kembali ke halaman login.',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
             ],
           ),
