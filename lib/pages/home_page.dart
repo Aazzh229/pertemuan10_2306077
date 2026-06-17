@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
+import 'product_page.dart';
 import '../models/product_model.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,7 +13,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String username = '';
+  //Product List
   List<ProductModel> products = [];
+  int totalProduct = 0;
 
   @override
   void initState() {
@@ -24,127 +27,13 @@ class _HomePageState extends State<HomePage> {
   Future<void> loadProducts() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> productList = prefs.getStringList('products') ?? [];
+    totalProduct = productList.length;
     setState(() {
-      products = productList
+      products = productList.reversed
+          .take(3)
           .map((item) => ProductModel.fromJson(item))
           .toList();
     });
-  }
-
-  Future<void> saveProducts() async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> productList = products.map((item) => item.toJson()).toList();
-    await prefs.setStringList('products', productList);
-  }
-
-  Future<void> addProduct(ProductModel product) async {
-    setState(() {
-      products.add(product);
-    });
-    await saveProducts();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Produk berhasil ditambahkan")),
-    );
-  }
-
-  Future<void> updateProduct(int index, ProductModel product) async {
-    setState(() {
-      products[index] = product;
-    });
-    await saveProducts();
-  }
-
-  Future<void> deleteProduct(int index) async {
-    setState(() {
-      products.removeAt(index);
-    });
-    await saveProducts();
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Produk berhasil dihapus")));
-  }
-
-  void showForm({ProductModel? product, int? index}) {
-    final formKey = GlobalKey<FormState>();
-    TextEditingController nameController = TextEditingController(
-      text: product?.name ?? "",
-    );
-    TextEditingController descriptionController = TextEditingController(
-      text: product?.description ?? "",
-    );
-    TextEditingController priceController = TextEditingController(
-      text: product?.price.toString() ?? "",
-    );
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(product == null ? "Tambah Produk" : "Edit Produk"),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Nama'),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Nama tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: descriptionController,
-                decoration: const InputDecoration(labelText: "Deskripsi"),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Deskripsi tidak boleh kosong';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: priceController,
-                decoration: const InputDecoration(labelText: "Harga"),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Harga tidak boleh kosong';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Harga harus berupa angka';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                final newProduct = ProductModel(
-                  name: nameController.text,
-                  description: descriptionController.text,
-                  price: int.parse(priceController.text),
-                );
-                if (product == null) {
-                  addProduct(newProduct);
-                } else {
-                  updateProduct(index!, newProduct);
-                }
-                Navigator.pop(context);
-              }
-            },
-            child: Text("Simpan"),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> getUser() async {
@@ -239,62 +128,31 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              Expanded(
-                child: products.isEmpty
-                    ? const Center(child: Text("Belum ada produk"))
-                    : ListView.builder(
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          final product = products[index];
-
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(15),
-                              title: Text(
-                                product.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 5),
-                                  Text("Rp ${product.price}"),
-                                  const SizedBox(height: 5),
-                                  Text(product.description),
-                                ],
-                              ),
-                              leading: IconButton(
-                                onPressed: () => showForm(
-                                  product: products[index],
-                                  index: index,
-                                ),
-                                icon: Icon(Icons.edit, color: Colors.orange),
-                              ),
-                              trailing: IconButton(
-                                onPressed: () => deleteProduct(index),
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Total Produk : ${totalProduct.toString()}",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  //Tombol pindah halaman
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProductPage(),
+                        ),
+                      );
+                    },
+                    child: const Text("Lihat selengkapnya"),
+                  ),
+                ],
               ),
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: showForm,
-        child: Icon(Icons.add),
       ),
     );
   }

@@ -3,18 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_page.dart';
 import 'pages/home_page.dart';
 
-
-
 void main() {
-  runApp(const MyApp(
-    
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  //This widget is the root of your application.
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -41,11 +37,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        home: Scaffold(body: Center(child: CircularProgressIndicator())),
       );
     }
     return MaterialApp(
